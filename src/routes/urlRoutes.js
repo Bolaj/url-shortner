@@ -66,6 +66,39 @@ router.get("/:shortUrl", async (req, res) => {
   }
 });
 
+router.put("/urls/:id", async (req, res) => {
+    const { id } = req.params;
+    const { originalUrl, shortUrl } = req.body;
+  
+    try {
+      // Validate the new original URL if provided
+      if (originalUrl && !validator.isURL(originalUrl, { protocols: ["http", "https"], require_protocol: true })) {
+        return res.status(400).json({
+          message: "Invalid URL format. URL must start with http:// or https://",
+        });
+      }
+  
+      // Update the URL document in the database
+      const updatedUrl = await Url.findByIdAndUpdate(
+        id,
+        { originalUrl, shortUrl },
+        { new: true, runValidators: true } // Return the updated document and validate fields
+      );
+  
+      if (!updatedUrl) {
+        return res.status(404).json({ message: "URL not found" });
+      }
+  
+      res.status(200).json({
+        message: "URL updated successfully",
+        updatedUrl,
+      });
+    } catch (error) {
+      console.error("Error updating URL:", error);
+      res.status(500).json({ message: "Error updating URL", error });
+    }
+  });
+
 router.delete("/urls/:id", async (req, res) => {
   const { id } = req.params;
   try {
