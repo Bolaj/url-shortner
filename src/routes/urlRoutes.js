@@ -10,31 +10,43 @@ router.get("/health", (req, res) => {
 });
 
 router.post("/shorten", async (req, res) => {
-  const { originalUrl } = req.body;
-
-  if (
-    !validator.isURL(originalUrl, {
-      protocols: ["http", "https"],
-      require_protocol: true,
-    })
-  ) {
-    return res.status(400).json({
-      message: "Invalid URL format. URL must start with http:// or https://",
-    });
-  }
-
-  try {
-    const url = new Url({ originalUrl });
-    await url.save();
-
-    res.status(201).json({
-      message: "URL shortened successfully",
-      shortUrl: `${req.protocol}://${req.get("host")}/${url.shortUrl}`,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Error shortening URL", error });
-  }
-});
+    const { originalUrl } = req.body;
+  
+    if (
+      !validator.isURL(originalUrl, {
+        protocols: ["http", "https"],
+        require_protocol: true,
+      })
+    ) {
+      return res.status(400).json({
+        message: "Invalid URL format. URL must start with http:// or https://",
+      });
+    }
+  
+    try {
+      const existingUrl = await Url.findOne({ originalUrl });
+      if (existingUrl) {
+        return res.status(200).json({
+          message: "URL already shortened",
+          shortUrl: `${req.protocol}://${req.get("host")}/${existingUrl.shortUrl}`,
+        });
+      }
+  
+      const shortCode = Math.random().toString(36).substring(2, 8);
+  
+      const url = new Url({ originalUrl, shortUrl: shortCode });
+      await url.save();
+  
+      res.status(201).json({
+        message: "URL shortened successfully",
+        shortUrl: `${req.protocol}://${req.get("host")}/${shortCode}`,
+      });
+    } catch (error) {
+      console.error("Error shortening URL:", error);
+      res.status(500).json({ message: "Error shortening URL", error });
+    }
+  });
+  
 router.get("/urls", async (req, res) => {
     try {
       const urls = await Url.find(); 
@@ -71,18 +83,16 @@ router.put("/urls/:id", async (req, res) => {
     const { originalUrl, shortUrl } = req.body;
   
     try {
-      // Validate the new original URL if provided
       if (originalUrl && !validator.isURL(originalUrl, { protocols: ["http", "https"], require_protocol: true })) {
         return res.status(400).json({
           message: "Invalid URL format. URL must start with http:// or https://",
         });
       }
   
-      // Update the URL document in the database
       const updatedUrl = await Url.findByIdAndUpdate(
         id,
         { originalUrl, shortUrl },
-        { new: true, runValidators: true } // Return the updated document and validate fields
+        { new: true, runValidators: true } 
       );
   
       if (!updatedUrl) {

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import shortid from "shortid";
 
 const urlSchema = new mongoose.Schema({
-  originalUrl: { type: String, required: true },
+  originalUrl: { type: String, required: true, unique: true },
   shortUrl: { type: String, required: true, default: shortid.generate },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

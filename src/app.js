@@ -8,10 +8,9 @@ const port = 3000
 
 connectDB();
 
-// Middleware
+
 app.use(bodyParser.json())
 
-// Routes
 app.use("/", urlRoutes)
 
 app.listen(port, () => {
