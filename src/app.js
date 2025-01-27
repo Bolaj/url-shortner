@@ -12,7 +12,7 @@ dotenv.config();
 connectDB();
 
 const frontendUrl = process.env.FRONTEND_URL;
-console.log(`Frontend URL: ${frontendUrl}`);
+console.log(`Frontend URL: ${frontendUrl}`)
 
 
 app.use(
