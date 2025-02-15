@@ -1,6 +1,6 @@
+const mongoose = require("mongoose")
+const shortid = require ("shortid")
 
-import mongoose from "mongoose";
-import shortid from "shortid";
 
 const urlSchema = new mongoose.Schema({
   originalUrl: { type: String, required: true, unique: true },
@@ -9,4 +9,4 @@ const urlSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model("Url", urlSchema);
+module.exports = mongoose.model("Url", urlSchema)

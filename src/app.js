@@ -1,31 +1,11 @@
-import express from "express"
-import bodyParser from "body-parser"
-import connectDB from "./config/db.js"
-import urlRoutes from "./routes/urlRoutes.js"
-import cors from "cors";
-import dotenv from "dotenv";
+const express = require("express")
 
-const app = express()
-const port = 3000
-dotenv.config();
+const urlRoutes = require ("./routes/urlRoutes")
+const appRouter = express()
 
-connectDB();
-
-const frontendUrl = process.env.FRONTEND_URL;
-console.log(`Frontend URL: ${frontendUrl}`)
+appRouter.use('/api', urlRoutes)
+appRouter.use('', urlRoutes)
 
 
-app.use(
-  cors({
-    origin: frontendUrl,
-  })
-);
 
-app.use(bodyParser.json())
-
-app.use("/", urlRoutes)
-
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`)
-  });
-  
+module.exports = appRouter
